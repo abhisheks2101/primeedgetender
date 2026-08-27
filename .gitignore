@@ -38,6 +38,7 @@ Thumbs.db
 # Docker
 *.log
 storage/uploads/
+backend/storage/uploads/
 
 # Build
 dist/
