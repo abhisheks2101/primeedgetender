@@ -49,6 +49,9 @@ export function AppLayout({ user, title, description, children, actions }: AppLa
           <Link href="/app/companies" className="text-slate-600 hover:text-slate-950">
             Companies
           </Link>
+          <Link href="/admin/tender-sources" className="text-slate-600 hover:text-slate-950">
+            Tender Sources
+          </Link>
         </nav>
         {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
       </header>

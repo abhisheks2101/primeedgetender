@@ -15,6 +15,12 @@ from app.models.company import (
     DocumentType,
     FinancialRecord,
 )
+from app.models.tender_source import (
+    TenderCollectionEvent,
+    TenderCollectionJob,
+    TenderRawRecord,
+    TenderSource,
+)
 from app.models.user import LoginAttempt, User, UserSession
 
 __all__ = [
@@ -34,4 +40,8 @@ __all__ = [
     "CompanyLocation",
     "DocumentType",
     "CompanyDocument",
+    "TenderSource",
+    "TenderCollectionJob",
+    "TenderCollectionEvent",
+    "TenderRawRecord",
 ]

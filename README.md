@@ -269,9 +269,26 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Optional demo seed CLI (`python -m app.cli seed-companies`)
 - See [docs/companies.md](docs/companies.md)
 
+### Implemented (Module 4)
+
+- Generic tender source architecture with adapter pattern
+- `TenderSource`, `TenderCollectionJob`, `TenderCollectionEvent`, and raw record storage
+- Extensible source types and collection methods
+- Validated source configuration (URLs, timeouts, retry, request politeness)
+- Async `TenderCollector` interface with UP/MP placeholders and mock collector
+- Retry framework for temporary failures
+- Source management and collection job history APIs
+- Admin UI under `/admin/tender-sources`
+- Fictional seed sources (`TEST_SOURCE_A`, `TEST_SOURCE_B`)
+- See [docs/tender_sources.md](docs/tender_sources.md)
+
+**Note:** Actual UP and MP tender collection is **not** implemented in Module 4.
+
 ### Not Implemented (future modules)
 
-- Tender source management and collectors (M04–M07)
+- UP tender collector (M05)
+- MP tender collector (M06)
+- Tender deduplication and normalized tender pipeline (M07)
 - Document processing and extraction (M08–M09)
 - Eligibility rules and AI matching (M10–M12)
 - Dashboard search, alerts, admin (M13–M15)

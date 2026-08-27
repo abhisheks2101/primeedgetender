@@ -53,3 +53,50 @@ class FinancialRecordType(str, enum.Enum):
     NET_WORTH = "NET_WORTH"
     FINANCIAL_CAPACITY = "FINANCIAL_CAPACITY"
     OTHER = "OTHER"
+
+
+class TenderSourceType(str, enum.Enum):
+    GOVERNMENT_PORTAL = "GOVERNMENT_PORTAL"
+    API = "API"
+    PUBLIC_DATA = "PUBLIC_DATA"
+    OTHER = "OTHER"
+
+
+class CollectionMethod(str, enum.Enum):
+    HTTP = "HTTP"
+    API = "API"
+    HTML = "HTML"
+    DOCUMENT = "DOCUMENT"
+    OTHER = "OTHER"
+
+
+class CollectionJobStatus(str, enum.Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    PARTIAL = "PARTIAL"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+class SourceHealthStatus(str, enum.Enum):
+    HEALTHY = "HEALTHY"
+    DEGRADED = "DEGRADED"
+    FAILED = "FAILED"
+    UNKNOWN = "UNKNOWN"
+
+
+class CollectionEventLevel(str, enum.Enum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+
+
+class CollectionErrorType(str, enum.Enum):
+    NETWORK = "NETWORK"
+    TIMEOUT = "TIMEOUT"
+    HTTP = "HTTP"
+    PARSING = "PARSING"
+    VALIDATION = "VALIDATION"
+    SOURCE_UNAVAILABLE = "SOURCE_UNAVAILABLE"
+    UNEXPECTED = "UNEXPECTED"

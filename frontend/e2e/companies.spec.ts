@@ -6,6 +6,8 @@ const adminEmail = process.env.E2E_ADMIN_EMAIL || "e2e.admin@example.com";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD || "Password123";
 
 test.beforeAll(async () => {
+  const backendUrl = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   try {
     execSync(
       `cd ../backend && . .venv/bin/activate && python -m app.cli create-admin --email ${adminEmail} --full-name "E2E Admin" --password ${adminPassword}`,
@@ -14,6 +16,16 @@ test.beforeAll(async () => {
   } catch {
     // Admin may already exist from a previous run.
   }
+
+  const loginResponse = await fetch(`${backendUrl}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email: adminEmail, password: adminPassword }),
+  });
+  expect(loginResponse.status).toBe(200);
 });
 
 async function login(page: import("@playwright/test").Page) {

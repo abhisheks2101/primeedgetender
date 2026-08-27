@@ -12,6 +12,7 @@ from app.core.enums import UserRole
 from app.core.security import validate_password_strength
 from app.schemas.auth import UserCreate
 from app.seed_companies import seed_demo_companies
+from app.seed_tender_sources import seed_demo_tender_sources
 from app.services.user_service import UserService
 
 
@@ -28,7 +29,15 @@ def create_admin(
     with session_factory() as db:
         user_service = UserService(db)
 
-        if user_service.admin_exists():
+        if email:
+            existing = user_service.get_by_email(email)
+            if existing:
+                if existing.role == UserRole.ADMIN:
+                    print(f"Administrator already exists: {existing.email}")
+                    return 0
+                print("A non-admin user already exists with this email.", file=sys.stderr)
+                return 1
+        elif user_service.admin_exists():
             print("An administrator account already exists. Aborting to prevent duplicates.", file=sys.stderr)
             return 1
 
@@ -70,6 +79,7 @@ def main() -> int:
     create_admin_parser.add_argument("--full-name")
     create_admin_parser.add_argument("--password")
     subparsers.add_parser("seed-companies", help="Seed fictional development/demo company data")
+    subparsers.add_parser("seed-tender-sources", help="Seed fictional development/demo tender sources")
 
     args = parser.parse_args()
 
@@ -78,6 +88,9 @@ def main() -> int:
 
     if args.command == "seed-companies":
         return seed_demo_companies()
+
+    if args.command == "seed-tender-sources":
+        return seed_demo_tender_sources()
 
     parser.print_help()
     return 1
