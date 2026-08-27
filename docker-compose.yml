@@ -30,6 +30,9 @@ services:
       POSTGRES_HOST: postgres
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-tender_user}:${POSTGRES_PASSWORD:-change_me_in_production}@postgres:5432/${POSTGRES_DB:-tender_intelligence}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      AUTH_SECRET: ${AUTH_SECRET:-replace_with_a_long_random_secret_in_local_env}
+      ALLOW_PUBLIC_REGISTRATION: ${ALLOW_PUBLIC_REGISTRATION:-false}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
@@ -51,6 +54,7 @@ services:
       - .env
     environment:
       NEXT_PUBLIC_API_URL: http://backend:8000
+      API_INTERNAL_URL: http://backend:8000
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     depends_on:

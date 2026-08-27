@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import health
+from app.api.routes import admin, auth, health
 from app.config import Settings, get_settings
 from app.core.database import create_db_engine, create_session_factory
 from app.logging_config import configure_logging
@@ -57,6 +57,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     app.include_router(health.router, prefix="/api")
+    app.include_router(auth.router, prefix="/api")
+    app.include_router(admin.router, prefix="/api")
 
     return app
 

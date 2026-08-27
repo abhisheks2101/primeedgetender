@@ -20,7 +20,7 @@ This project uses **₹0 paid services**. All components are open-source and run
 | Backend | Python, FastAPI, Pydantic, SQLAlchemy, Alembic |
 | Database | PostgreSQL 16 |
 | Infrastructure | Docker, Docker Compose |
-| Testing | Pytest, Jest, Testing Library |
+| Testing | Pytest, Playwright, Jest, Testing Library |
 
 ## Prerequisites
 
@@ -99,6 +99,53 @@ npm run dev
 
 Open http://localhost:3000 to view the landing page and system status.
 
+## Authentication
+
+Module 2 adds local authentication with secure HTTP-only session cookies.
+
+### Roles
+
+| Role | Description |
+|------|-------------|
+| `ADMIN` | Full administrative access |
+| `USER` | Standard authenticated access |
+
+Public registration is disabled by default and can only create `USER` accounts when explicitly enabled. There is no public path to create an `ADMIN`.
+
+### First admin creation
+
+Create the initial administrator with the management CLI:
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m app.cli create-admin
+```
+
+The command prompts for email, full name, and password securely. It prevents creating a second administrator accidentally.
+
+### Login and logout
+
+- Login page: http://localhost:3000/login
+- Protected shell: http://localhost:3000/app
+- Login API: `POST /api/auth/login`
+- Logout API: `POST /api/auth/logout`
+- Current user API: `GET /api/auth/me`
+
+Authentication uses an HTTP-only session cookie (`tip_session`). The frontend sends authenticated requests through same-origin `/api/*` proxy rewrites with `credentials: "include"`.
+
+### Development authentication configuration
+
+Set these values in `.env`:
+
+- `AUTH_SECRET` — long random secret used by the application environment (required)
+- `FRONTEND_URL` — browser origin allowed for CORS/cookies
+- `ALLOW_PUBLIC_REGISTRATION=false` — keep disabled unless you intentionally want open USER registration
+- `COOKIE_SECURE=false` — required for local HTTP development
+- `COOKIE_SAMESITE=lax` — appropriate for local development
+
+For production, use `.env.production` with `APP_ENV=production`, `COOKIE_SECURE=true`, and strong secrets.
+
 ## Running Tests
 
 ### Backend unit and integration tests
@@ -111,11 +158,21 @@ pytest
 
 Integration tests require PostgreSQL. If it is unavailable, database-related tests are skipped.
 
-### Frontend tests
+### Frontend unit tests
 
 ```bash
 cd frontend
 npm test
+```
+
+### End-to-end tests (Playwright)
+
+Playwright expects PostgreSQL, backend migrations, and the backend virtual environment to be available.
+
+```bash
+cd frontend
+npx playwright install chromium
+npm run test:e2e
 ```
 
 ## Docker Commands
@@ -159,6 +216,17 @@ Example response:
 
 When `APP_DEBUG=true`, OpenAPI docs are available at `/api/docs`.
 
+### Authentication APIs
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/auth/register` | Create a USER account when public registration is enabled |
+| `POST` | `/api/auth/login` | Authenticate and establish a session cookie |
+| `POST` | `/api/auth/logout` | Invalidate the current session |
+| `GET` | `/api/auth/me` | Return the current authenticated user |
+| `GET` | `/api/auth/session-check` | Authenticated endpoint for USER and ADMIN |
+| `GET` | `/api/admin/status` | Admin-only authorization check |
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md) for module boundaries, directory layout, and future extension points.
@@ -176,9 +244,20 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Docker Compose for development and production structure
 - Automated tests and documentation
 
+### Implemented (Module 2)
+
+- User model with secure password hashing (bcrypt)
+- Roles: `ADMIN`, `USER`
+- Database-backed session authentication with HTTP-only cookies
+- Login, logout, current-user, and restricted registration APIs
+- Reusable authorization dependencies for authenticated users and admins
+- Admin creation CLI (`python -m app.cli create-admin`)
+- Login page (`/login`) and protected shell (`/app`)
+- PostgreSQL-backed login rate limiting
+- Pytest and Playwright test coverage
+
 ### Not Implemented (future modules)
 
-- Authentication and users (M02)
 - Company profiles and documents (M03)
 - Tender source management and collectors (M04–M07)
 - Document processing and extraction (M08–M09)

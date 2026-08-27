@@ -25,17 +25,19 @@ export interface SystemStatusView {
   error?: string;
 }
 
-function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-}
+import { getApiBaseUrl } from "@/lib/utils";
 
-export async function fetchHealthStatus(): Promise<SystemStatusView> {
-  const apiUrl = getApiBaseUrl();
+export async function fetchHealthStatus(cookieHeader?: string): Promise<SystemStatusView> {
+  const apiUrl = getApiBaseUrl(true);
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (cookieHeader) {
+    headers.cookie = cookieHeader;
+  }
 
   try {
     const response = await fetch(`${apiUrl}/api/health`, {
       cache: "no-store",
-      headers: { Accept: "application/json" },
+      headers,
     });
 
     if (!response.ok) {

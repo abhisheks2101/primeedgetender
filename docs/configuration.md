@@ -35,6 +35,19 @@ cp .env.example .env
 | `DATABASE_URL` | SQLAlchemy connection URL | `postgresql+psycopg://...` |
 | `NEXT_PUBLIC_API_URL` | Backend URL used by the frontend | `http://localhost:8000` |
 | `LOG_LEVEL` | Logging verbosity | `INFO` |
+| `AUTH_SECRET` | Application auth/session secret (required) | long random string |
+| `FRONTEND_URL` | Allowed frontend origin for CORS/cookies | `http://localhost:3000` |
+| `SESSION_COOKIE_NAME` | HTTP-only session cookie name | `tip_session` |
+| `SESSION_EXPIRE_HOURS` | Session lifetime in hours | `24` |
+| `COOKIE_SECURE` | Send cookies only over HTTPS | `false` in dev |
+| `COOKIE_SAMESITE` | Cookie SameSite policy | `lax` |
+| `ALLOW_PUBLIC_REGISTRATION` | Allow public USER registration API | `false` |
+| `LOGIN_RATE_LIMIT_MAX_ATTEMPTS` | Failed login attempts before block | `5` |
+| `LOGIN_RATE_LIMIT_WINDOW_MINUTES` | Rate limit window in minutes | `15` |
+| `API_INTERNAL_URL` | Server-side backend URL for Next.js/middleware | `http://localhost:8000` |
+| `E2E_BASE_URL` | Playwright browser base URL | `http://localhost:3000` |
+| `E2E_TEST_EMAIL` | Playwright test account email | `e2e.user@example.com` |
+| `E2E_TEST_PASSWORD` | Playwright test account password | strong test password |
 
 ## Docker Notes
 

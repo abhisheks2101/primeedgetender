@@ -41,6 +41,16 @@ class Settings(BaseSettings):
 
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
+    auth_secret: str = Field(default="", alias="AUTH_SECRET")
+    frontend_url: str = Field(default="http://localhost:3000", alias="FRONTEND_URL")
+    session_cookie_name: str = Field(default="tip_session", alias="SESSION_COOKIE_NAME")
+    session_expire_hours: int = Field(default=24, alias="SESSION_EXPIRE_HOURS")
+    cookie_secure: bool = Field(default=False, alias="COOKIE_SECURE")
+    cookie_samesite: Literal["lax", "strict", "none"] = Field(default="lax", alias="COOKIE_SAMESITE")
+    allow_public_registration: bool = Field(default=False, alias="ALLOW_PUBLIC_REGISTRATION")
+    login_rate_limit_max_attempts: int = Field(default=5, alias="LOGIN_RATE_LIMIT_MAX_ATTEMPTS")
+    login_rate_limit_window_minutes: int = Field(default=15, alias="LOGIN_RATE_LIMIT_WINDOW_MINUTES")
+
     @field_validator("database_url", mode="before")
     @classmethod
     def assemble_database_url(cls, value: str | None, info) -> str:
@@ -54,9 +64,24 @@ class Settings(BaseSettings):
         db = data.get("postgres_db", "tender_intelligence")
         return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db}"
 
+    @field_validator("cookie_secure", mode="before")
+    @classmethod
+    def default_cookie_secure(cls, value, info):
+        if value is not None and str(value).strip() != "":
+            return value
+        data = info.data
+        return data.get("app_env") == "production"
+
     @property
     def cors_origins(self) -> list[str]:
-        return [origin.strip() for origin in self.backend_cors_origins.split(",") if origin.strip()]
+        origins = [origin.strip() for origin in self.backend_cors_origins.split(",") if origin.strip()]
+        if self.frontend_url and self.frontend_url not in origins:
+            origins.append(self.frontend_url)
+        return origins
+
+    @property
+    def is_production(self) -> bool:
+        return self.app_env == "production"
 
 
 @lru_cache
