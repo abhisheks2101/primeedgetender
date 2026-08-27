@@ -65,3 +65,20 @@ def require_admin(
             detail="Admin privileges required.",
         )
     return current_user
+
+
+def require_company_read(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    return current_user
+
+
+def require_company_write(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required for company management.",
+        )
+    return current_user

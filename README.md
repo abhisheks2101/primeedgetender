@@ -256,9 +256,21 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - PostgreSQL-backed login rate limiting
 - Pytest and Playwright test coverage
 
+### Implemented (Module 3)
+
+- Multi-company profile system (Company A / Company B / …)
+- Structured registrations, contractor registrations, financial history
+- Normalized capability categories and company capability assignments
+- Project/work experience with structured categories
+- Machinery, personnel, and geographic operating locations
+- Generic company document upload with local filesystem storage abstraction
+- Company management UI under `/app/companies`
+- Admin write access and authenticated user read access
+- Optional demo seed CLI (`python -m app.cli seed-companies`)
+- See [docs/companies.md](docs/companies.md)
+
 ### Not Implemented (future modules)
 
-- Company profiles and documents (M03)
 - Tender source management and collectors (M04–M07)
 - Document processing and extraction (M08–M09)
 - Eligibility rules and AI matching (M10–M12)

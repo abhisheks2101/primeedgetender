@@ -11,10 +11,16 @@ from app.core.database import create_db_engine, create_session_factory
 from app.core.enums import UserRole
 from app.core.security import validate_password_strength
 from app.schemas.auth import UserCreate
+from app.seed_companies import seed_demo_companies
 from app.services.user_service import UserService
 
 
-def create_admin(settings: Settings | None = None) -> int:
+def create_admin(
+    settings: Settings | None = None,
+    email: str | None = None,
+    full_name: str | None = None,
+    password: str | None = None,
+) -> int:
     settings = settings or Settings()
     engine = create_db_engine(settings)
     session_factory = create_session_factory(engine)
@@ -26,17 +32,19 @@ def create_admin(settings: Settings | None = None) -> int:
             print("An administrator account already exists. Aborting to prevent duplicates.", file=sys.stderr)
             return 1
 
-        email = input("Admin email: ").strip()
-        full_name = input("Admin full name: ").strip()
-        password = getpass.getpass("Admin password: ")
-        confirm_password = getpass.getpass("Confirm password: ")
+        if not email:
+            email = input("Admin email: ").strip()
+        if not full_name:
+            full_name = input("Admin full name: ").strip()
+        if not password:
+            password = getpass.getpass("Admin password: ")
+            confirm_password = getpass.getpass("Confirm password: ")
+            if password != confirm_password:
+                print("Passwords do not match.", file=sys.stderr)
+                return 1
 
-        if not email or not full_name:
-            print("Email and full name are required.", file=sys.stderr)
-            return 1
-
-        if password != confirm_password:
-            print("Passwords do not match.", file=sys.stderr)
+        if not email or not full_name or not password:
+            print("Email, full name, and password are required.", file=sys.stderr)
             return 1
 
         try:
@@ -57,12 +65,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Tender Intelligence Platform management CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("create-admin", help="Create the initial administrator account")
+    create_admin_parser = subparsers.add_parser("create-admin", help="Create the initial administrator account")
+    create_admin_parser.add_argument("--email")
+    create_admin_parser.add_argument("--full-name")
+    create_admin_parser.add_argument("--password")
+    subparsers.add_parser("seed-companies", help="Seed fictional development/demo company data")
 
     args = parser.parse_args()
 
     if args.command == "create-admin":
-        return create_admin()
+        return create_admin(email=args.email, full_name=getattr(args, "full_name", None), password=args.password)
+
+    if args.command == "seed-companies":
+        return seed_demo_companies()
 
     parser.print_help()
     return 1

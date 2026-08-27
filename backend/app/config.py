@@ -51,6 +51,18 @@ class Settings(BaseSettings):
     login_rate_limit_max_attempts: int = Field(default=5, alias="LOGIN_RATE_LIMIT_MAX_ATTEMPTS")
     login_rate_limit_window_minutes: int = Field(default=15, alias="LOGIN_RATE_LIMIT_WINDOW_MINUTES")
 
+    upload_storage_path: str = Field(default="storage/uploads", alias="UPLOAD_STORAGE_PATH")
+    max_upload_size_bytes: int = Field(default=10_485_760, alias="MAX_UPLOAD_SIZE_BYTES")
+    allowed_upload_mime_types: str = Field(
+        default=(
+            "application/pdf,image/jpeg,image/png,image/webp,text/plain,"
+            "application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,"
+            "application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+        alias="ALLOWED_UPLOAD_MIME_TYPES",
+    )
+    document_expiring_soon_days: int = Field(default=30, alias="DOCUMENT_EXPIRING_SOON_DAYS")
+
     @field_validator("database_url", mode="before")
     @classmethod
     def assemble_database_url(cls, value: str | None, info) -> str:
@@ -82,6 +94,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @property
+    def allowed_mime_types(self) -> list[str]:
+        return [item.strip() for item in self.allowed_upload_mime_types.split(",") if item.strip()]
 
 
 @lru_cache

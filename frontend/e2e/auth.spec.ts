@@ -49,7 +49,7 @@ test.describe("Authentication", () => {
 
     await expect(page).toHaveURL(/\/app$/);
     await expect(page.getByText("Authentication successfully configured.")).toBeVisible();
-    await expect(page.getByText(fullName)).toBeVisible();
+    await expect(page.getByRole("paragraph").filter({ hasText: fullName })).toBeVisible();
   });
 
   test("invalid login shows error", async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe("Authentication", () => {
     await expect(page).toHaveURL(/\/app$/);
 
     await page.reload();
-    await expect(page.getByText(fullName)).toBeVisible();
+    await expect(page.getByRole("paragraph").filter({ hasText: fullName })).toBeVisible();
     await expect(page.getByText("Authentication successfully configured.")).toBeVisible();
   });
 
