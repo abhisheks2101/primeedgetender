@@ -84,9 +84,25 @@ TenderIntelligencePlatform/{version} (+https://github.com/abhisheks2101/primeedg
 ### Portal access
 
 - **Home listing**: publicly accessible without CAPTCHA (~10 latest active tenders).
+- **Detail pages**: require a portal session cookie from visiting the home page first; the collector keeps one session for the whole job.
 - **Full paginated listing / filters** (`FrontEndLatestActiveTenders`, organisation, location, classification): require CAPTCHA — **not automated**.
-- **Detail pages**: require session cookies; collector uses a persistent httpx client.
 - **No CAPTCHA bypass, login bypass, or anti-bot evasion** is attempted.
+
+### Troubleshooting failed collection
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `home_listing timed out` | Portal slow or unreachable | Increase `request_timeout_seconds` to `90` or `120` on the UP source |
+| Job stays `QUEUED` | Background worker crashed | Check backend logs; retry after updating to latest code |
+| `0 tenders discovered` | Portal HTML changed or blocked | Verify https://etender.up.nic.in opens in a browser from the same machine |
+| Detail parse failures | Session expired mid-run | Retry collection; reduce `max_requests_per_collection` |
+| Only ~10 tenders | Expected | Full listing requires CAPTCHA; home page exposes latest active tenders only |
+
+Refresh recommended UP source settings:
+
+```bash
+cd backend && python -m app.cli seed-tender-sources
+```
 
 ### Field gaps
 

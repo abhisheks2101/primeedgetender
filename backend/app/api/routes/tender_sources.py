@@ -17,6 +17,7 @@ from app.schemas.tender_source import (
     TenderSourceSummary,
     TenderSourceUpdate,
 )
+from app.core.enums import CollectionJobStatus
 from app.services.collection_job_service import CollectionJobService
 from app.services.collection_runner import CollectionRunner
 from app.services.tender_source_service import TenderSourceService
@@ -57,12 +58,31 @@ def _job_to_summary(job, source_name: str | None = None, source_code: str | None
 
 async def _execute_collection(source_id: UUID, job_id: UUID, session_factory) -> None:
     with session_factory() as db:
-        source = TenderSourceService(db).get_source_or_404(source_id)
-        collector = get_collector_for_source(source)
-        if collector is None:
-            return
-        runner = CollectionRunner(db)
-        await runner.run_with_collector(source_id, collector, job_id=job_id)
+        source_service = TenderSourceService(db)
+        job_service = CollectionJobService(db)
+        try:
+            source = source_service.get_source_or_404(source_id)
+            collector = get_collector_for_source(source)
+            if collector is None:
+                job_service.finalize_job(
+                    job_service.get_job_model_or_404(job_id),
+                    source,
+                    status=CollectionJobStatus.FAILED,
+                    error_message=f"No collector registered for source code {source.code}.",
+                )
+                return
+            runner = CollectionRunner(db)
+            await runner.run_with_collector(source_id, collector, job_id=job_id)
+        except Exception as exc:
+            db.rollback()
+            source = source_service.get_source_or_404(source_id)
+            job = job_service.get_job_model_or_404(job_id)
+            job_service.finalize_job(
+                job,
+                source,
+                status=CollectionJobStatus.FAILED,
+                error_message=str(exc),
+            )
 
 
 @router.get("", response_model=list[TenderSourceSummary])

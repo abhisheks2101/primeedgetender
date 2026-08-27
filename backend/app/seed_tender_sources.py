@@ -86,15 +86,38 @@ def seed_demo_tender_sources() -> int:
                     configuration=SourceConfiguration(
                         source_url=UP_HOME_URL,
                         search_url=UP_SEARCH_URL,
-                        request_timeout_seconds=30,
-                        retry_count=2,
-                        request_delay_seconds=1.5,
+                        request_timeout_seconds=90,
+                        retry_count=3,
+                        request_delay_seconds=2.0,
                         max_requests_per_collection=50,
                         pagination={"page_size": 10},
                     ),
                 )
             )
             created_any = True
+        else:
+            up_source = db.scalar(select(TenderSource).where(TenderSource.code == "UP_TENDER"))
+            if up_source is not None:
+                config = SourceConfiguration.model_validate(up_source.configuration or {})
+                if (
+                    config.request_timeout_seconds < 60
+                    or config.retry_count < 3
+                    or int((config.pagination or {}).get("page_size", 10)) < 10
+                ):
+                    up_source.configuration = SourceConfiguration(
+                        source_url=config.source_url or UP_HOME_URL,
+                        search_url=config.search_url or UP_SEARCH_URL,
+                        detail_url_pattern=config.detail_url_pattern,
+                        document_url_pattern=config.document_url_pattern,
+                        request_timeout_seconds=90,
+                        retry_count=3,
+                        request_delay_seconds=max(config.request_delay_seconds, 2.0),
+                        max_requests_per_collection=max(config.max_requests_per_collection, 50),
+                        pagination={"page_size": 10},
+                    ).model_dump(mode="json")
+                    db.commit()
+                    print("Updated UP_TENDER source with improved timeout/retry settings.")
+                    created_any = True
 
         if not created_any:
             print("Tender sources already seeded. Skipping seed.")

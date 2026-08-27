@@ -166,8 +166,9 @@ def parse_listing_page(html: str, base_url: str) -> list[dict[str, Any]]:
         raise ParsingCollectionError("Active tenders table (#activeTenders) not found on listing page.")
 
     summaries: list[dict[str, Any]] = []
-    rows = table.find_all("tr")
-    for row in rows[1:]:
+    for row in table.find_all("tr"):
+        if row.find("th") is not None:
+            continue
         summary = parse_tender_summary(row, base_url)
         if summary is not None:
             summaries.append(summary)
@@ -184,7 +185,11 @@ def parse_tender_summary(row: Tag, base_url: str) -> dict[str, Any] | None:
     if link is None:
         return None
 
-    detail_url = urljoin(base_url, link["href"])
+    href = link["href"]
+    if "DirectLink_0" in href or "FrontEndLatestActiveTenders" in href:
+        return None
+
+    detail_url = urljoin(base_url, href)
     source_tender_id = _extract_sp_param(detail_url)
     if not source_tender_id:
         source_tender_id = _clean_text(link.get_text()) or detail_url
@@ -256,7 +261,15 @@ def parse_tender_detail(html: str, detail_url: str) -> dict[str, Any]:
             fields["source_tender_id"] = fallback_id
 
     if not fields.get("source_tender_id"):
-        raise ParsingCollectionError("Tender detail page is missing a stable tender ID.")
+        reference = fields.get("reference_number") or fields["field_map"].get("reference_number")
+        if reference:
+            fields["source_tender_id"] = reference
+        elif fields.get("title"):
+            raise ParsingCollectionError(
+                "Tender detail page is missing a stable tender ID; refusing to create an ambiguous record."
+            )
+        else:
+            raise ParsingCollectionError("Tender detail page is missing a stable tender ID.")
 
     documents = parse_documents(html, detail_url)
     fields["documents"] = documents
