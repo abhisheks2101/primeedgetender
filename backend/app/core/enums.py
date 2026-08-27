@@ -100,3 +100,11 @@ class CollectionErrorType(str, enum.Enum):
     VALIDATION = "VALIDATION"
     SOURCE_UNAVAILABLE = "SOURCE_UNAVAILABLE"
     UNEXPECTED = "UNEXPECTED"
+
+
+class TenderStatus(str, enum.Enum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    CANCELLED = "CANCELLED"
+    AWARDED = "AWARDED"
+    UNKNOWN = "UNKNOWN"

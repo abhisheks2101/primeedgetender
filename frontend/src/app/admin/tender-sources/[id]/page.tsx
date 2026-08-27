@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
 import { AppLayout } from "@/components/app-layout";
+import { CollectNowButton } from "@/components/collect-now-button";
 import { TenderSourceActions } from "@/components/tender-source-actions";
 import { TenderSourceForm } from "@/components/tender-source-form";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,9 @@ export default async function TenderSourceDetailPage({ params }: TenderSourceDet
             <Link href="/admin/tender-sources">Back to Sources</Link>
           </Button>
           {user.role === "ADMIN" ? <TenderSourceActions sourceId={source.id} isActive={source.is_active} /> : null}
+          {user.role === "ADMIN" ? (
+            <CollectNowButton sourceId={source.id} sourceCode={source.code} isActive={source.is_active} />
+          ) : null}
         </div>
       }
     >
@@ -129,6 +133,8 @@ export default async function TenderSourceDetailPage({ params }: TenderSourceDet
                   <th className="px-3 py-2">Discovered</th>
                   <th className="px-3 py-2">Processed</th>
                   <th className="px-3 py-2">Created</th>
+                  <th className="px-3 py-2">Updated</th>
+                  <th className="px-3 py-2">Skipped</th>
                   <th className="px-3 py-2">Failed</th>
                   <th className="px-3 py-2">Duration</th>
                 </tr>
@@ -142,6 +148,8 @@ export default async function TenderSourceDetailPage({ params }: TenderSourceDet
                     <td className="px-3 py-3">{job.records_discovered}</td>
                     <td className="px-3 py-3">{job.records_processed}</td>
                     <td className="px-3 py-3">{job.records_created}</td>
+                    <td className="px-3 py-3">{job.records_updated}</td>
+                    <td className="px-3 py-3">{job.records_skipped}</td>
                     <td className="px-3 py-3">{job.records_failed}</td>
                     <td className="px-3 py-3">{job.duration_seconds ?? "—"}</td>
                   </tr>

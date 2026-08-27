@@ -40,6 +40,9 @@ class TenderSourceService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tender source not found.")
         return source
 
+    def get_by_code(self, code: str) -> TenderSource | None:
+        return self.db.scalar(select(TenderSource).where(TenderSource.code == code.upper()))
+
     def create_source(self, payload: TenderSourceCreate) -> TenderSource:
         source = TenderSource(
             name=payload.name,

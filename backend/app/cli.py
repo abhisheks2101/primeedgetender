@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import getpass
 import sys
+import time
 
 from app.config import Settings
 from app.core.database import create_db_engine, create_session_factory
@@ -13,6 +15,8 @@ from app.core.security import validate_password_strength
 from app.schemas.auth import UserCreate
 from app.seed_companies import seed_demo_companies
 from app.seed_tender_sources import seed_demo_tender_sources
+from app.services.collection_runner import CollectionRunner
+from app.services.tender_source_service import TenderSourceService
 from app.services.user_service import UserService
 
 
@@ -70,6 +74,42 @@ def create_admin(
         return 0
 
 
+async def collect_up_tenders(settings: Settings | None = None) -> int:
+    """Manual live-source collection against the configured UP_TENDER source."""
+    settings = settings or Settings()
+    engine = create_db_engine(settings)
+    session_factory = create_session_factory(engine)
+
+    with session_factory() as db:
+        source_service = TenderSourceService(db)
+        source = source_service.get_by_code("UP_TENDER")
+        if source is None:
+            print("UP_TENDER source is not configured. Run seed-tender-sources first.", file=sys.stderr)
+            return 1
+        if not source.is_active:
+            print("UP_TENDER source is inactive.", file=sys.stderr)
+            return 1
+
+        started = time.perf_counter()
+        runner = CollectionRunner(db)
+        job = await runner.run_for_source(source.id)
+        elapsed = round(time.perf_counter() - started, 2)
+
+        print("UP manual collection finished")
+        print(f"  Job ID: {job.id}")
+        print(f"  Status: {job.status.value}")
+        print(f"  Discovered: {job.records_discovered}")
+        print(f"  Processed: {job.records_processed}")
+        print(f"  Created: {job.records_created}")
+        print(f"  Updated: {job.records_updated}")
+        print(f"  Skipped: {job.records_skipped}")
+        print(f"  Failed: {job.records_failed}")
+        print(f"  Duration: {elapsed}s")
+        if job.error_message:
+            print(f"  Error: {job.error_message}")
+        return 0 if job.status.value in {"COMPLETED", "PARTIAL"} else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Tender Intelligence Platform management CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -80,6 +120,10 @@ def main() -> int:
     create_admin_parser.add_argument("--password")
     subparsers.add_parser("seed-companies", help="Seed fictional development/demo company data")
     subparsers.add_parser("seed-tender-sources", help="Seed fictional development/demo tender sources")
+    subparsers.add_parser(
+        "collect-up",
+        help="Manually collect tenders from the live UP portal (not for automated CI)",
+    )
 
     args = parser.parse_args()
 
@@ -91,6 +135,9 @@ def main() -> int:
 
     if args.command == "seed-tender-sources":
         return seed_demo_tender_sources()
+
+    if args.command == "collect-up":
+        return asyncio.run(collect_up_tenders())
 
     parser.print_help()
     return 1

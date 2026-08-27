@@ -2,28 +2,8 @@
 
 from app.collectors.base import TenderCollector
 from app.collectors.mock_collector import MockTenderCollector
+from app.collectors.up.up_collector import UPTenderCollector
 from app.models.tender_source import TenderSource
-
-
-class UPTenderCollector(TenderCollector):
-    """Placeholder for Module 5 — no real UP collection logic."""
-
-    code = "UP_TENDER"
-
-    async def discover(self, context):
-        raise NotImplementedError("UP tender collection is implemented in Module 5.")
-
-    async def fetch_details(self, source_tender_id: str, context):
-        raise NotImplementedError("UP tender collection is implemented in Module 5.")
-
-    async def fetch_documents(self, source_tender_id: str, context):
-        raise NotImplementedError("UP tender collection is implemented in Module 5.")
-
-    def normalize(self, raw, context):
-        raise NotImplementedError("UP tender collection is implemented in Module 5.")
-
-    def validate(self, draft, context):
-        raise NotImplementedError("UP tender collection is implemented in Module 5.")
 
 
 class MPTenderCollector(TenderCollector):

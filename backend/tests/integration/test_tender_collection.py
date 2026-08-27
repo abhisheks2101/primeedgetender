@@ -5,7 +5,8 @@ import pytest
 from app.collectors.base import TenderCollector
 from app.collectors.errors import NetworkCollectionError
 from app.collectors.mock_collector import MockCollectionScenario, MockTenderCollector
-from app.collectors.registry import CollectorRegistry, UPTenderCollector, MPTenderCollector
+from app.collectors.registry import CollectorRegistry, MPTenderCollector
+from app.collectors.up.up_collector import UPTenderCollector
 from app.collectors.retry import RetryPolicy, retry_async
 from app.core.enums import CollectionJobStatus
 from app.schemas.tender_source import TenderSourceCreate, SourceConfiguration
@@ -120,13 +121,13 @@ def test_sensitive_context_redacted():
     assert sanitized["page"] == 1
 
 
-def test_registry_contains_future_stubs():
+def test_registry_contains_collectors():
     assert CollectorRegistry.get("UP_TENDER") is UPTenderCollector
     assert CollectorRegistry.get("MP_TENDER") is MPTenderCollector
 
 
-def test_up_mp_collectors_not_implemented():
-    collector = UPTenderCollector()
+def test_mp_collector_not_implemented():
+    collector = MPTenderCollector()
 
     async def run():
         with pytest.raises(NotImplementedError):

@@ -86,6 +86,12 @@ class CollectionJobService:
             events=list(job.events),
         )
 
+    def get_job_model_or_404(self, job_id: UUID) -> TenderCollectionJob:
+        job = self.db.get(TenderCollectionJob, job_id)
+        if job is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Collection job not found.")
+        return job
+
     def create_job(self, source: TenderSource) -> TenderCollectionJob:
         job = TenderCollectionJob(
             tender_source_id=source.id,

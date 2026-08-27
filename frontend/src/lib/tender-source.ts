@@ -146,3 +146,13 @@ export function listSourceJobs(sourceId: string, cookieHeader?: string) {
 export function listCollectionJobs(cookieHeader?: string) {
   return apiFetch<CollectionJobSummary[]>("/api/tender-collection/jobs", undefined, cookieHeader);
 }
+
+export function getCollectionJob(jobId: string, cookieHeader?: string) {
+  return apiFetch<CollectionJobSummary>(`/api/tender-collection/jobs/${jobId}`, undefined, cookieHeader);
+}
+
+export function collectTenderSource(sourceId: string) {
+  return apiFetch<CollectionJobSummary>(`/api/tender-sources/${sourceId}/collect`, {
+    method: "POST",
+  });
+}

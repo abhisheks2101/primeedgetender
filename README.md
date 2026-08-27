@@ -282,11 +282,21 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Fictional seed sources (`TEST_SOURCE_A`, `TEST_SOURCE_B`)
 - See [docs/tender_sources.md](docs/tender_sources.md)
 
-**Note:** Actual UP and MP tender collection is **not** implemented in Module 4.
+### Implemented (Module 5)
+
+- Uttar Pradesh tender collector (`UPTenderCollector`) for the official NIC GeP portal
+- Normalized `Tender` and `TenderDocument` models with upsert by source identity
+- Public home-page discovery (CAPTCHA-protected full listing is not automated)
+- HTML parsers for listing, detail, dates, Indian currency amounts, status, and documents
+- Collection job integration with created/updated/skipped statistics and events
+- `POST /api/tender-sources/{source_id}/collect` admin API
+- Admin **Collect Now** control with job polling
+- Manual live collection CLI (`python -m app.cli collect-up`)
+- Mocked offline pytest and integration coverage
+- See [docs/up_collector.md](docs/up_collector.md)
 
 ### Not Implemented (future modules)
 
-- UP tender collector (M05)
 - MP tender collector (M06)
 - Tender deduplication and normalized tender pipeline (M07)
 - Document processing and extraction (M08–M09)
