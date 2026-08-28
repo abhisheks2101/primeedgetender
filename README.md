@@ -295,10 +295,21 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Mocked offline pytest and integration coverage
 - See [docs/up_collector.md](docs/up_collector.md)
 
+### Implemented (Module 6)
+
+- Madhya Pradesh tender collector (`MPTenderCollector`) for the official NIC GeP portal
+- MP-specific HTML parsers and session-aware HTTP client
+- Public home-page discovery (CAPTCHA-protected full listing is not automated)
+- Shared `Tender` model with upsert by `(tender_source_id, source_tender_id)`
+- `POST /api/tender-sources/{source_id}/collect` supports MP source
+- Admin **Collect Now** for `MP_TENDER`
+- Manual CLI: `python -m app.cli collect-mp`
+- Mocked offline tests including cross-source UP/MP isolation
+- See [docs/mp_collector.md](docs/mp_collector.md)
+
 ### Not Implemented (future modules)
 
-- MP tender collector (M06)
-- Tender deduplication and normalized tender pipeline (M07)
+- Tender deduplication across sources (M07)
 - Document processing and extraction (M08–M09)
 - Eligibility rules and AI matching (M10–M12)
 - Dashboard search, alerts, admin (M13–M15)

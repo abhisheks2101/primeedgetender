@@ -24,7 +24,7 @@ from app.services.tender_source_service import TenderSourceService
 
 router = APIRouter(prefix="/tender-sources", tags=["tender-sources"])
 
-COLLECTABLE_SOURCE_CODES = {"UP_TENDER", "MOCK"}
+COLLECTABLE_SOURCE_CODES = {"UP_TENDER", "MP_TENDER", "MOCK"}
 
 
 def get_source_service(db: Annotated[Session, Depends(get_db)]) -> TenderSourceService:

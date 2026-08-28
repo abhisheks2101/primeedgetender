@@ -74,20 +74,19 @@ def create_admin(
         return 0
 
 
-async def collect_up_tenders(settings: Settings | None = None) -> int:
-    """Manual live-source collection against the configured UP_TENDER source."""
+async def collect_source_tenders(source_code: str, label: str, settings: Settings | None = None) -> int:
     settings = settings or Settings()
     engine = create_db_engine(settings)
     session_factory = create_session_factory(engine)
 
     with session_factory() as db:
         source_service = TenderSourceService(db)
-        source = source_service.get_by_code("UP_TENDER")
+        source = source_service.get_by_code(source_code)
         if source is None:
-            print("UP_TENDER source is not configured. Run seed-tender-sources first.", file=sys.stderr)
+            print(f"{source_code} source is not configured. Run seed-tender-sources first.", file=sys.stderr)
             return 1
         if not source.is_active:
-            print("UP_TENDER source is inactive.", file=sys.stderr)
+            print(f"{source_code} source is inactive.", file=sys.stderr)
             return 1
 
         started = time.perf_counter()
@@ -95,7 +94,7 @@ async def collect_up_tenders(settings: Settings | None = None) -> int:
         job = await runner.run_for_source(source.id)
         elapsed = round(time.perf_counter() - started, 2)
 
-        print("UP manual collection finished")
+        print(f"{label} manual collection finished")
         print(f"  Job ID: {job.id}")
         print(f"  Status: {job.status.value}")
         print(f"  Discovered: {job.records_discovered}")
@@ -108,6 +107,14 @@ async def collect_up_tenders(settings: Settings | None = None) -> int:
         if job.error_message:
             print(f"  Error: {job.error_message}")
         return 0 if job.status.value in {"COMPLETED", "PARTIAL"} else 1
+
+
+async def collect_up_tenders(settings: Settings | None = None) -> int:
+    return await collect_source_tenders("UP_TENDER", "UP", settings)
+
+
+async def collect_mp_tenders(settings: Settings | None = None) -> int:
+    return await collect_source_tenders("MP_TENDER", "MP", settings)
 
 
 def main() -> int:
@@ -125,6 +132,11 @@ def main() -> int:
         help="Manually collect tenders from the live UP portal (not for automated CI)",
     )
 
+    subparsers.add_parser(
+        "collect-mp",
+        help="Manually collect tenders from the live MP portal (not for automated CI)",
+    )
+
     args = parser.parse_args()
 
     if args.command == "create-admin":
@@ -138,6 +150,9 @@ def main() -> int:
 
     if args.command == "collect-up":
         return asyncio.run(collect_up_tenders())
+
+    if args.command == "collect-mp":
+        return asyncio.run(collect_mp_tenders())
 
     parser.print_help()
     return 1

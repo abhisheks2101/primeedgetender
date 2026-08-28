@@ -17,6 +17,10 @@ UP_PORTAL_URL = "https://etender.up.nic.in/nicgep/app"
 UP_HOME_URL = f"{UP_PORTAL_URL}?page=Home&service=page"
 UP_SEARCH_URL = f"{UP_PORTAL_URL}?page=FrontEndLatestActiveTenders&service=page"
 
+MP_PORTAL_URL = "https://mptenders.gov.in/nicgep/app"
+MP_HOME_URL = f"{MP_PORTAL_URL}?page=Home&service=page"
+MP_SEARCH_URL = f"{MP_PORTAL_URL}?page=FrontEndLatestActiveTenders&service=page"
+
 
 def seed_demo_tender_sources() -> int:
     settings = Settings()
@@ -119,11 +123,58 @@ def seed_demo_tender_sources() -> int:
                     print("Updated UP_TENDER source with improved timeout/retry settings.")
                     created_any = True
 
+        if db.scalar(select(TenderSource).where(TenderSource.code == "MP_TENDER")) is None:
+            service.create_source(
+                TenderSourceCreate(
+                    name="Madhya Pradesh Tender Portal",
+                    code="MP_TENDER",
+                    state="Madhya Pradesh",
+                    authority="Government of Madhya Pradesh",
+                    portal_url=MP_PORTAL_URL,
+                    source_type=TenderSourceType.GOVERNMENT_PORTAL,
+                    collection_method=CollectionMethod.HTML,
+                    description="Official Madhya Pradesh NIC GeP tender portal (public home listing and detail pages).",
+                    configuration=SourceConfiguration(
+                        source_url=MP_HOME_URL,
+                        search_url=MP_SEARCH_URL,
+                        request_timeout_seconds=90,
+                        retry_count=3,
+                        request_delay_seconds=2.0,
+                        max_requests_per_collection=50,
+                        pagination={"page_size": 10},
+                    ),
+                )
+            )
+            created_any = True
+        else:
+            mp_source = db.scalar(select(TenderSource).where(TenderSource.code == "MP_TENDER"))
+            if mp_source is not None:
+                config = SourceConfiguration.model_validate(mp_source.configuration or {})
+                if (
+                    config.request_timeout_seconds < 60
+                    or config.retry_count < 3
+                    or int((config.pagination or {}).get("page_size", 10)) < 10
+                ):
+                    mp_source.configuration = SourceConfiguration(
+                        source_url=config.source_url or MP_HOME_URL,
+                        search_url=config.search_url or MP_SEARCH_URL,
+                        detail_url_pattern=config.detail_url_pattern,
+                        document_url_pattern=config.document_url_pattern,
+                        request_timeout_seconds=90,
+                        retry_count=3,
+                        request_delay_seconds=max(config.request_delay_seconds, 2.0),
+                        max_requests_per_collection=max(config.max_requests_per_collection, 50),
+                        pagination={"page_size": 10},
+                    ).model_dump(mode="json")
+                    db.commit()
+                    print("Updated MP_TENDER source with improved timeout/retry settings.")
+                    created_any = True
+
         if not created_any:
             print("Tender sources already seeded. Skipping seed.")
             return 0
 
-    print("Seeded tender sources (TEST_SOURCE_A, TEST_SOURCE_B, UP_TENDER as needed).")
+    print("Seeded tender sources (TEST_SOURCE_A, TEST_SOURCE_B, UP_TENDER, MP_TENDER as needed).")
     return 0
 
 

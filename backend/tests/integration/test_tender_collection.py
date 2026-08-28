@@ -5,7 +5,8 @@ import pytest
 from app.collectors.base import TenderCollector
 from app.collectors.errors import NetworkCollectionError
 from app.collectors.mock_collector import MockCollectionScenario, MockTenderCollector
-from app.collectors.registry import CollectorRegistry, MPTenderCollector
+from app.collectors.mp.mp_collector import MPTenderCollector
+from app.collectors.registry import CollectorRegistry
 from app.collectors.up.up_collector import UPTenderCollector
 from app.collectors.retry import RetryPolicy, retry_async
 from app.core.enums import CollectionJobStatus
@@ -126,13 +127,7 @@ def test_registry_contains_collectors():
     assert CollectorRegistry.get("MP_TENDER") is MPTenderCollector
 
 
-def test_mp_collector_not_implemented():
+def test_mp_collector_is_registered():
     collector = MPTenderCollector()
-
-    async def run():
-        with pytest.raises(NotImplementedError):
-            await collector.discover(None)
-
-    import asyncio
-
-    asyncio.run(run())
+    assert collector.code == "MP_TENDER"
+    assert CollectorRegistry.get("MP_TENDER") is MPTenderCollector

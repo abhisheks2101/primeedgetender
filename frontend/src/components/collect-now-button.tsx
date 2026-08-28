@@ -18,7 +18,7 @@ export function CollectNowButton({ sourceId, sourceCode, isActive }: CollectNowB
   const [job, setJob] = useState<CollectionJobSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const canCollect = isActive && (sourceCode === "UP_TENDER" || sourceCode.startsWith("TEST_"));
+  const canCollect = isActive && (sourceCode === "UP_TENDER" || sourceCode === "MP_TENDER" || sourceCode.startsWith("TEST_"));
 
   useEffect(() => {
     if (!job || ["COMPLETED", "PARTIAL", "FAILED", "CANCELLED"].includes(job.status)) {

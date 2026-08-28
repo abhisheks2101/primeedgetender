@@ -1,30 +1,10 @@
-"""Collector registry and future source adapter stubs."""
+"""Collector registry."""
 
 from app.collectors.base import TenderCollector
 from app.collectors.mock_collector import MockTenderCollector
+from app.collectors.mp.mp_collector import MPTenderCollector
 from app.collectors.up.up_collector import UPTenderCollector
 from app.models.tender_source import TenderSource
-
-
-class MPTenderCollector(TenderCollector):
-    """Placeholder for Module 6 — no real MP collection logic."""
-
-    code = "MP_TENDER"
-
-    async def discover(self, context):
-        raise NotImplementedError("MP tender collection is implemented in Module 6.")
-
-    async def fetch_details(self, source_tender_id: str, context):
-        raise NotImplementedError("MP tender collection is implemented in Module 6.")
-
-    async def fetch_documents(self, source_tender_id: str, context):
-        raise NotImplementedError("MP tender collection is implemented in Module 6.")
-
-    def normalize(self, raw, context):
-        raise NotImplementedError("MP tender collection is implemented in Module 6.")
-
-    def validate(self, draft, context):
-        raise NotImplementedError("MP tender collection is implemented in Module 6.")
 
 
 class CollectorRegistry:
