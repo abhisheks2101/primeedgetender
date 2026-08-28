@@ -52,6 +52,14 @@ export function AppLayout({ user, title, description, children, actions }: AppLa
           <Link href="/admin/tender-sources" className="text-slate-600 hover:text-slate-950">
             Tender Sources
           </Link>
+          <Link href="/admin/tenders" className="text-slate-600 hover:text-slate-950">
+            Tenders
+          </Link>
+          {user.role === "ADMIN" ? (
+            <Link href="/admin/tender-duplicates" className="text-slate-600 hover:text-slate-950">
+              Duplicate Review
+            </Link>
+          ) : null}
         </nav>
         {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
       </header>

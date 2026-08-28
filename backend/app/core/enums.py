@@ -108,3 +108,30 @@ class TenderStatus(str, enum.Enum):
     CANCELLED = "CANCELLED"
     AWARDED = "AWARDED"
     UNKNOWN = "UNKNOWN"
+
+
+class IndianStateCode(str, enum.Enum):
+    UTTAR_PRADESH = "UTTAR_PRADESH"
+    MADHYA_PRADESH = "MADHYA_PRADESH"
+    UNKNOWN = "UNKNOWN"
+
+
+class NormalizationStatus(str, enum.Enum):
+    NOT_PROCESSED = "NOT_PROCESSED"
+    NORMALIZED = "NORMALIZED"
+    FAILED = "FAILED"
+    NEEDS_REVIEW = "NEEDS_REVIEW"
+
+
+class DuplicateMatchType(str, enum.Enum):
+    EXACT_DUPLICATE = "EXACT_DUPLICATE"
+    LIKELY_DUPLICATE = "LIKELY_DUPLICATE"
+    POSSIBLE_DUPLICATE = "POSSIBLE_DUPLICATE"
+    NOT_DUPLICATE = "NOT_DUPLICATE"
+
+
+class DuplicateReviewStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    CONFIRMED_DUPLICATE = "CONFIRMED_DUPLICATE"
+    NOT_DUPLICATE = "NOT_DUPLICATE"
+    IGNORED = "IGNORED"
