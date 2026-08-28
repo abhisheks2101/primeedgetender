@@ -269,9 +269,47 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Optional demo seed CLI (`python -m app.cli seed-companies`)
 - See [docs/companies.md](docs/companies.md)
 
+### Implemented (Module 4)
+
+- Generic tender source architecture with adapter pattern
+- `TenderSource`, `TenderCollectionJob`, `TenderCollectionEvent`, and raw record storage
+- Extensible source types and collection methods
+- Validated source configuration (URLs, timeouts, retry, request politeness)
+- Async `TenderCollector` interface with UP/MP placeholders and mock collector
+- Retry framework for temporary failures
+- Source management and collection job history APIs
+- Admin UI under `/admin/tender-sources`
+- Fictional seed sources (`TEST_SOURCE_A`, `TEST_SOURCE_B`)
+- See [docs/tender_sources.md](docs/tender_sources.md)
+
+### Implemented (Module 5)
+
+- Uttar Pradesh tender collector (`UPTenderCollector`) for the official NIC GeP portal
+- Normalized `Tender` and `TenderDocument` models with upsert by source identity
+- Public home-page discovery (CAPTCHA-protected full listing is not automated)
+- HTML parsers for listing, detail, dates, Indian currency amounts, status, and documents
+- Collection job integration with created/updated/skipped statistics and events
+- `POST /api/tender-sources/{source_id}/collect` admin API
+- Admin **Collect Now** control with job polling
+- Manual live collection CLI (`python -m app.cli collect-up`)
+- Mocked offline pytest and integration coverage
+- See [docs/up_collector.md](docs/up_collector.md)
+
+### Implemented (Module 6)
+
+- Madhya Pradesh tender collector (`MPTenderCollector`) for the official NIC GeP portal
+- MP-specific HTML parsers and session-aware HTTP client
+- Public home-page discovery (CAPTCHA-protected full listing is not automated)
+- Shared `Tender` model with upsert by `(tender_source_id, source_tender_id)`
+- `POST /api/tender-sources/{source_id}/collect` supports MP source
+- Admin **Collect Now** for `MP_TENDER`
+- Manual CLI: `python -m app.cli collect-mp`
+- Mocked offline tests including cross-source UP/MP isolation
+- See [docs/mp_collector.md](docs/mp_collector.md)
+
 ### Not Implemented (future modules)
 
-- Tender source management and collectors (M04–M07)
+- Tender deduplication across sources (M07)
 - Document processing and extraction (M08–M09)
 - Eligibility rules and AI matching (M10–M12)
 - Dashboard search, alerts, admin (M13–M15)

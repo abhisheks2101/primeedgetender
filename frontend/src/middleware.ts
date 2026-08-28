@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getServerApiBaseUrl } from "@/lib/utils";
 
 export async function middleware(request: NextRequest) {
-  if (!request.nextUrl.pathname.startsWith("/app")) {
+  if (!request.nextUrl.pathname.startsWith("/app") && !request.nextUrl.pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
 
@@ -30,5 +30,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*"],
+  matcher: ["/app/:path*", "/admin/:path*"],
 };
