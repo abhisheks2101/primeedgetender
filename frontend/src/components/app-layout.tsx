@@ -55,6 +55,9 @@ export function AppLayout({ user, title, description, children, actions }: AppLa
           <Link href="/admin/tenders" className="text-slate-600 hover:text-slate-950">
             Tenders
           </Link>
+          <Link href="/admin/tender-documents" className="text-slate-600 hover:text-slate-950">
+            Tender Documents
+          </Link>
           {user.role === "ADMIN" ? (
             <Link href="/admin/tender-duplicates" className="text-slate-600 hover:text-slate-950">
               Duplicate Review

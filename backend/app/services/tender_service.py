@@ -12,7 +12,8 @@ from sqlalchemy.orm import Session
 
 from app.collectors.base import NormalizedTenderDraft, RawDocumentRef
 from app.core.enums import NormalizationStatus
-from app.models.tender import Tender, TenderChangeHistory, TenderDocument
+from app.models.tender import Tender, TenderChangeHistory
+from app.document_processing.discovery import upsert_discovered_document
 from app.normalization.pipeline import normalize_draft
 from app.services.deduplication_service import DeduplicationService
 
@@ -199,13 +200,12 @@ class TenderService:
     def _replace_documents(self, tender: Tender, documents: list[RawDocumentRef]) -> None:
         if not documents:
             return
-        tender.documents.clear()
         for doc in documents:
-            tender.documents.append(
-                TenderDocument(
-                    document_name=doc.title or doc.document_id,
-                    document_url=doc.url,
-                    document_type=doc.document_id if doc.document_id else None,
-                    source_reference=doc.document_id,
-                )
+            upsert_discovered_document(
+                self.db,
+                tender_id=tender.id,
+                document_name=doc.title or doc.document_id,
+                document_url=doc.url,
+                source_document_id=doc.document_id,
+                document_type=doc.document_id if doc.document_id else None,
             )

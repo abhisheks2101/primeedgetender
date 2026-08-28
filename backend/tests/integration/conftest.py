@@ -15,7 +15,15 @@ from app.models.company import (
     ContractorRegistration,
     FinancialRecord,
 )
-from app.models.tender import Tender, TenderChangeHistory, TenderDocument, TenderDuplicateCandidate
+from app.models.tender import (
+    Tender,
+    TenderChangeHistory,
+    TenderDocument,
+    TenderDocumentPage,
+    TenderDocumentProcessingEvent,
+    TenderDocumentProcessingJob,
+    TenderDuplicateCandidate,
+)
 from app.models.tender_source import (
     TenderCollectionEvent,
     TenderCollectionJob,
@@ -27,6 +35,9 @@ from app.models.user import LoginAttempt, User, UserSession
 
 @pytest.fixture(autouse=True)
 def clean_integration_tables(db):
+    db.execute(delete(TenderDocumentProcessingEvent))
+    db.execute(delete(TenderDocumentProcessingJob))
+    db.execute(delete(TenderDocumentPage))
     db.execute(delete(TenderDuplicateCandidate))
     db.execute(delete(TenderChangeHistory))
     db.execute(delete(TenderDocument))

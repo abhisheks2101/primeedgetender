@@ -39,6 +39,8 @@ Thumbs.db
 *.log
 storage/uploads/
 backend/storage/uploads/
+storage/tenders/
+backend/storage/tenders/
 
 # Build
 dist/

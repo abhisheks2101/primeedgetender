@@ -63,6 +63,20 @@ class Settings(BaseSettings):
     )
     document_expiring_soon_days: int = Field(default=30, alias="DOCUMENT_EXPIRING_SOON_DAYS")
 
+    document_storage_path: str = Field(default="storage/tenders", alias="DOCUMENT_STORAGE_PATH")
+    max_document_size_mb: int = Field(default=50, alias="MAX_DOCUMENT_SIZE_MB")
+    download_timeout_seconds: int = Field(default=30, alias="DOWNLOAD_TIMEOUT_SECONDS")
+    download_retries: int = Field(default=3, alias="DOWNLOAD_RETRIES")
+    download_delay_seconds: float = Field(default=1.0, alias="DOWNLOAD_DELAY_SECONDS")
+    max_documents_per_job: int = Field(default=50, alias="MAX_DOCUMENTS_PER_JOB")
+    ocr_enabled: bool = Field(default=False, alias="OCR_ENABLED")
+    ocr_languages: str = Field(default="eng", alias="OCR_LANGUAGES")
+    ocr_min_text_threshold: int = Field(default=50, alias="OCR_MIN_TEXT_THRESHOLD")
+    document_allowed_domains: str = Field(
+        default="etender.up.nic.in,mptenders.gov.in,example.test",
+        alias="DOCUMENT_ALLOWED_DOMAINS",
+    )
+
     @field_validator("database_url", mode="before")
     @classmethod
     def assemble_database_url(cls, value: str | None, info) -> str:
@@ -98,6 +112,14 @@ class Settings(BaseSettings):
     @property
     def allowed_mime_types(self) -> list[str]:
         return [item.strip() for item in self.allowed_upload_mime_types.split(",") if item.strip()]
+
+    @property
+    def max_document_size_bytes(self) -> int:
+        return self.max_document_size_mb * 1024 * 1024
+
+    @property
+    def allowed_document_domains(self) -> list[str]:
+        return [item.strip().lower() for item in self.document_allowed_domains.split(",") if item.strip()]
 
 
 @lru_cache

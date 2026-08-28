@@ -15,14 +15,7 @@ from app.core.enums import (
 )
 
 
-class TenderDocumentPublic(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    document_name: str
-    document_url: str | None = None
-    document_type: str | None = None
-    source_reference: str | None = None
+from app.schemas.tender_document import TenderDocumentSummary as TenderDocumentPublic
 
 
 class TenderSummary(BaseModel):
