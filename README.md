@@ -227,6 +227,18 @@ When `APP_DEBUG=true`, OpenAPI docs are available at `/api/docs`.
 | `GET` | `/api/auth/session-check` | Authenticated endpoint for USER and ADMIN |
 | `GET` | `/api/admin/status` | Admin-only authorization check |
 
+### Tender APIs (Module 7)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/tenders` | List normalized tenders (authenticated) |
+| `GET` | `/api/tenders/{id}` | Normalized tender detail |
+| `GET` | `/api/tender-duplicates` | List duplicate candidates (admin) |
+| `GET` | `/api/tender-duplicates/{id}` | Duplicate candidate detail (admin) |
+| `PATCH` | `/api/tender-duplicates/{id}` | Review duplicate candidate (admin) |
+
+See [docs/tender_normalization.md](docs/tender_normalization.md) for the normalization pipeline and deduplication policy.
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md) for module boundaries, directory layout, and future extension points.
@@ -307,9 +319,20 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Mocked offline tests including cross-source UP/MP isolation
 - See [docs/mp_collector.md](docs/mp_collector.md)
 
+### Implemented (Module 7)
+
+- Shared normalization pipeline for UP and MP collector output
+- Text, date, money, location, state, and status normalization
+- Conservative exact and fuzzy duplicate detection
+- `TenderDuplicateCandidate` review workflow
+- `TenderChangeHistory` for key field updates
+- Normalization version and reprocessing CLI (`python -m app.cli reprocess-normalization`)
+- Admin UI at `/admin/tenders` and `/admin/tender-duplicates`
+- Raw payload preservation with normalized fields stored separately
+- See [docs/tender_normalization.md](docs/tender_normalization.md)
+
 ### Not Implemented (future modules)
 
-- Tender deduplication across sources (M07)
 - Document processing and extraction (M08–M09)
 - Eligibility rules and AI matching (M10–M12)
 - Dashboard search, alerts, admin (M13–M15)

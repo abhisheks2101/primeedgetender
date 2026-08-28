@@ -15,7 +15,7 @@ from app.models.company import (
     DocumentType,
     FinancialRecord,
 )
-from app.models.tender import Tender, TenderDocument
+from app.models.tender import Tender, TenderChangeHistory, TenderDocument, TenderDuplicateCandidate
 from app.models.tender_source import (
     TenderCollectionEvent,
     TenderCollectionJob,
@@ -47,4 +47,6 @@ __all__ = [
     "TenderRawRecord",
     "Tender",
     "TenderDocument",
+    "TenderChangeHistory",
+    "TenderDuplicateCandidate",
 ]

@@ -16,6 +16,7 @@ from app.schemas.auth import UserCreate
 from app.seed_companies import seed_demo_companies
 from app.seed_tender_sources import seed_demo_tender_sources
 from app.services.collection_runner import CollectionRunner
+from app.services.tender_service import TenderService
 from app.services.tender_source_service import TenderSourceService
 from app.services.user_service import UserService
 
@@ -117,6 +118,41 @@ async def collect_mp_tenders(settings: Settings | None = None) -> int:
     return await collect_source_tenders("MP_TENDER", "MP", settings)
 
 
+def reprocess_normalization(
+    settings: Settings | None = None,
+    *,
+    source_code: str | None = None,
+    limit: int = 500,
+) -> int:
+    settings = settings or Settings()
+    engine = create_db_engine(settings)
+    session_factory = create_session_factory(engine)
+
+    with session_factory() as db:
+        source_service = TenderSourceService(db)
+        tender_service = TenderService(db)
+        sources = source_service.list_sources(active_only=False)
+        if source_code:
+            sources = [source for source in sources if source.code == source_code]
+            if not sources:
+                print(f"No tender source found for code {source_code}.", file=sys.stderr)
+                return 1
+
+        total = 0
+        for source in sources:
+            processed = tender_service.reprocess_all_for_source(
+                source.id,
+                source_code=source.code,
+                limit=limit,
+            )
+            db.commit()
+            total += processed
+            print(f"  {source.code}: reprocessed {processed} tender(s)")
+
+        print(f"Normalization reprocessing finished ({total} tender(s) total).")
+        return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Tender Intelligence Platform management CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -136,6 +172,12 @@ def main() -> int:
         "collect-mp",
         help="Manually collect tenders from the live MP portal (not for automated CI)",
     )
+    reprocess_parser = subparsers.add_parser(
+        "reprocess-normalization",
+        help="Re-run normalization against stored raw tender payloads",
+    )
+    reprocess_parser.add_argument("--source-code", help="Limit reprocessing to one source code")
+    reprocess_parser.add_argument("--limit", type=int, default=500, help="Maximum tenders per source")
 
     args = parser.parse_args()
 
@@ -153,6 +195,9 @@ def main() -> int:
 
     if args.command == "collect-mp":
         return asyncio.run(collect_mp_tenders())
+
+    if args.command == "reprocess-normalization":
+        return reprocess_normalization(source_code=getattr(args, "source_code", None), limit=args.limit)
 
     parser.print_help()
     return 1

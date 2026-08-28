@@ -158,6 +158,7 @@ class CollectionRunner:
 
                     tender, action = self.tender_service.upsert_from_draft(
                         source_id=source.id,
+                        source_code=source.code,
                         draft=draft,
                         payload=details.payload,
                         documents=documents or draft.documents,

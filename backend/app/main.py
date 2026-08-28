@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import admin, auth, companies, health, tender_collection, tender_sources
+from app.api.routes import admin, auth, companies, health, tender_collection, tender_duplicates, tender_sources, tenders
 from app.config import Settings, get_settings
 from app.core.database import create_db_engine, create_session_factory
 from app.logging_config import configure_logging
@@ -63,6 +63,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(companies.documents_router, prefix="/api")
     app.include_router(tender_sources.router, prefix="/api")
     app.include_router(tender_collection.router, prefix="/api")
+    app.include_router(tenders.router, prefix="/api")
+    app.include_router(tender_duplicates.router, prefix="/api")
 
     return app
 
