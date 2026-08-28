@@ -331,9 +331,20 @@ See [docs/architecture.md](docs/architecture.md) for module boundaries, director
 - Raw payload preservation with normalized fields stored separately
 - See [docs/tender_normalization.md](docs/tender_normalization.md)
 
+### Implemented (Module 8)
+
+- Tender document discovery, safe download, validation, and checksum tracking
+- Page-level PDF/TXT/HTML/DOCX text extraction with optional Tesseract OCR fallback
+- `TenderDocumentPage`, processing jobs, and processing events
+- SSRF protection and domain allowlisting for document URLs
+- Local filesystem storage under `storage/tenders`
+- Admin UI at `/admin/tender-documents`
+- Document processing APIs for testing and administration
+- See [docs/tender_document_processing.md](docs/tender_document_processing.md)
+
 ### Not Implemented (future modules)
 
-- Document processing and extraction (M08–M09)
+- Structured tender information extraction (M09)
 - Eligibility rules and AI matching (M10–M12)
 - Dashboard search, alerts, admin (M13–M15)
 
