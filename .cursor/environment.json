@@ -1,0 +1,30 @@
+{
+  "name": "Tender Intelligence Platform",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "user": "ubuntu",
+  "install": "./.cursor/scripts/install.sh",
+  "start": "./.cursor/scripts/start.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "bash -lc 'source backend/.venv/bin/activate && cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'"
+    },
+    {
+      "name": "frontend",
+      "command": "bash -lc 'cd frontend && npm run dev -- -H 0.0.0.0 -p 3000'"
+    }
+  ],
+  "ports": [
+    {
+      "name": "frontend",
+      "port": 3000
+    },
+    {
+      "name": "backend",
+      "port": 8000
+    }
+  ]
+}
